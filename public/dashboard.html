@@ -20,6 +20,267 @@
     <link rel="stylesheet" href="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css" />
     <!-- Custom CSS -->
     <link href="../css/style.min.css" rel="stylesheet" />
+
+    <!-- ============================== SETUP FIREBASE DAN SCRIPT =================== -->
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.18.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.18.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-performance-compat.js"></script>
+    <!-- 
+       initialize the SDK after all desired features are loaded, set useEmulator to false
+       to avoid connecting the SDK to running emulators.
+     -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
+      import { getDatabase, ref, set, push, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-database.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyDneaXgP6IJwrGILauQGpMC3VwNDnIXwKE",
+        authDomain: "udara-20779.firebaseapp.com",
+        databaseURL: "https://udara-20779-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "udara-20779",
+        storageBucket: "udara-20779.appspot.com",
+        messagingSenderId: "871100329548",
+        appId: "1:871100329548:web:a51edf09420bd6488bcee9",
+        measurementId: "G-RPNRXJGY3R",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+
+      const database = getDatabase(app);
+      const queryString = window.location.search;
+      console.log(queryString);
+
+      /* ================== PARAMS ========================== */
+
+      let COPagi = [];
+      let CO2Pagi = [];
+      let VOCPagi = [];
+
+      let COSore = [];
+      let CO2Sore = [];
+      let VOCSore = [];
+
+      let batasNormalCO = 9.0;
+      let batasNormalCO2 = 1000.0;
+      let batasNormalVOC = 3.0;
+
+      let tanggalData = [];
+
+      window.time = new Date();
+      function getDate() {
+        const time = window.time;
+        const day = time.getDate();
+        const d = parseInt(day) < 10 ? "0" + day : day;
+        const month = time.getMonth();
+        const m = parseInt(month) + 1 < 10 ? "0" + (parseInt(month) + 1).toString() : parseInt(month) + 1;
+        const date = d + "-" + m + "-" + time.getFullYear();
+        return date;
+      }
+
+      function setParameter() {
+        const db = getDatabase();
+        const dataHarian = ref(db, "Data/");
+        onValue(dataHarian, (snapshot) => {
+          const data = snapshot.val();
+
+          Object.keys(data).forEach((key) => {
+            tanggalData.push(key);
+            let jam = Object.values(data[key]);
+            let dataPagi = Object.values(jam[0]);
+            let dataSore = Object.values(jam[1]);
+
+            // console.log(obj.name); // John
+
+            COPagi.push(parseFloat(dataPagi[0]));
+            COSore.push(parseFloat(dataSore[0]));
+            CO2Pagi.push(parseFloat(dataPagi[1]));
+            CO2Sore.push(parseFloat(dataSore[1]));
+            VOCPagi.push(parseFloat(dataPagi[2]));
+            VOCSore.push(parseFloat(dataSore[2]));
+          });
+        });
+      }
+
+      setParameter();
+
+      var delayInMilliseconds = 1000; //1 second
+
+      setTimeout(function () {
+        //your code to be executed after 1 second
+        /*
+         console.log("CO pagi  : " + COPagi);
+         console.log("CO2 pagi : " + CO2Pagi);
+         console.log("VOC pagi : " + VOCPagi);
+ 
+         console.log("CO  sore : " + COSore);
+         console.log("CO2 sore : " + CO2Sore);
+         console.log("VOC sore : " + VOCSore);
+         console.log("Tanggal : " + categories);
+         */
+
+        columnChart("CO", tanggalData, batasNormalCO, COPagi, COSore);
+        columnChart("CO2", tanggalData, batasNormalCO2, CO2Pagi, CO2Sore);
+        columnChart("VOC", tanggalData, batasNormalVOC, VOCPagi, VOCSore);
+      }, delayInMilliseconds);
+
+      /* ========================================= */
+
+      function getTimestamp() {
+        const time = window.time;
+        const hour = time.getHours();
+        const min = time.getMinutes();
+        const sec = time.getSeconds();
+
+        const h = parseInt(hour) < 10 ? "0" + hour : hour;
+        const m = parseInt(min) < 10 ? "0" + min : min;
+        const s = parseInt(sec) < 10 ? "0" + sec : sec;
+
+        const timestamp = h + ":" + m + ":" + s;
+        return timestamp;
+      }
+
+      function columnChart(parameter, categories, batasNormal, dataPagi, dataSore) {
+        Highcharts.setOptions({
+          lang: {
+            thousandsSep: " ",
+          },
+          colors: ["#2a9df4", "#fd9a73"],
+        });
+
+        Highcharts.chart("container container-" + parameter.toLowerCase(), {
+          chart: {
+            type: "column",
+            zoomType: "y",
+            //backgroundColor:"#FBFAE4"
+          },
+          title: {
+            text: "Perbandingan kadar " + parameter + " pada Pagi dan Sore hari",
+          },
+          subtitle: {
+            text: 'Source: <a href="https://www.statista.com/statistics/611318/population-of-europe-by-country-and-gender/">statista.com</a>',
+          },
+          xAxis: {
+            categories: categories,
+            crosshair: true,
+          },
+          yAxis: {
+            min: 0,
+            title: {
+              text: "ppm",
+            },
+            plotLines: [
+              {
+                color: "green",
+                width: 1,
+                value: batasNormal,
+                zIndex: 5,
+                label: {
+                  text: "normal: " + batasNormal,
+                },
+              },
+            ],
+          },
+
+          tooltip: {
+            headerFormat: '<span style="font-size:10px"><b>{point.key}</b></span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
+            footerFormat: "</table>",
+            shared: true,
+            useHTML: true,
+          },
+          plotOptions: {
+            column: {
+              pointPadding: 0.2,
+              borderWidth: 0,
+            },
+          },
+          series: [
+            {
+              name: "Pagi",
+              data: dataPagi,
+            },
+            {
+              name: "Sore",
+              data: dataSore,
+            },
+          ],
+        });
+      }
+    </script>
+    <style>
+      .highcharts-figure,
+      .highcharts-data-table table {
+        min-width: 310px;
+        max-width: 800px;
+        margin: 1em auto;
+      }
+
+      #container {
+        height: 400px;
+      }
+
+      .highcharts-data-table table {
+        font-family: Verdana, sans-serif;
+        border-collapse: collapse;
+        border: 1px solid #ebebeb;
+        margin: 10px auto;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .highcharts-data-table caption {
+        padding: 1em 0;
+        font-size: 1.2em;
+        color: #555;
+      }
+
+      .highcharts-data-table th {
+        font-weight: 600;
+        padding: 0.5em;
+      }
+
+      .highcharts-data-table td,
+      .highcharts-data-table th,
+      .highcharts-data-table caption {
+        padding: 0.5em;
+      }
+
+      .highcharts-data-table thead tr,
+      .highcharts-data-table tr:nth-child(even) {
+        background: #f8f8f8;
+      }
+
+      .highcharts-data-table tr:hover {
+        background: #f1f7ff;
+      }
+    </style>
   </head>
 
   <body>
@@ -236,13 +497,19 @@
 
           <div class="row justify-content-center">
             <div class="col-lg-4 col-md-12">
-              <div class="white-box analytics-info"></div>
+              <div class="white-box analytics-info">
+                <div id="container container-co"></div>
+              </div>
             </div>
             <div class="col-lg-4 col-md-12">
-              <div class="white-box analytics-info"></div>
+              <div class="white-box analytics-info">
+                <div id="container container-co2"></div>
+              </div>
             </div>
             <div class="col-lg-4 col-md-12">
-              <div class="white-box analytics-info"></div>
+              <div class="white-box analytics-info">
+                <div id="container container-voc"></div>
+              </div>
             </div>
           </div>
         </div>
