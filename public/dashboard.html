@@ -64,7 +64,11 @@
       let CO2Sore = [];
       let VOCSore = [];
 
-      let categories = [];
+      let batasNormalCO = 9.0;
+      let batasNormalCO2 = 1000.0;
+      let batasNormalVOC = 3.0;
+
+      let tanggalData = [];
 
       window.time = new Date();
       function getDate() {
@@ -84,7 +88,7 @@
           const data = snapshot.val();
 
           Object.keys(data).forEach((key) => {
-            categories.push(key);
+            tanggalData.push(key);
             let jam = Object.values(data[key]);
             let dataPagi = Object.values(jam[0]);
             let dataSore = Object.values(jam[1]);
@@ -107,6 +111,7 @@
 
       setTimeout(function () {
         //your code to be executed after 1 second
+        /*
         console.log("CO pagi  : " + COPagi);
         console.log("CO2 pagi : " + CO2Pagi);
         console.log("VOC pagi : " + VOCPagi);
@@ -115,8 +120,11 @@
         console.log("CO2 sore : " + CO2Sore);
         console.log("VOC sore : " + VOCSore);
         console.log("Tanggal : " + categories);
+        */
 
-        columnChart("Pagi", categories, COPagi, CO2Pagi, VOCPagi);
+        columnChart("CO", tanggalData, batasNormalCO, COPagi, COSore);
+        columnChart("CO2", tanggalData, batasNormalCO2, CO2Pagi, CO2Sore);
+        columnChart("VOC", tanggalData, batasNormalVOC, VOCPagi, VOCSore);
       }, delayInMilliseconds);
 
       /* ========================================= */
@@ -135,22 +143,22 @@
         return timestamp;
       }
 
-      function columnChart(waktuPengambilanData, categories, dataCO, dataCO2, dataVOC) {
+      function columnChart(parameter, categories, batasNormal, dataPagi, dataSore) {
         Highcharts.setOptions({
           lang: {
             thousandsSep: " ",
           },
-          colors: ["#e987cf", "#67E863", "#FFD700"],
+          colors: ["#2a9df4", "#fd9a73"],
         });
 
-        Highcharts.chart("container", {
+        Highcharts.chart("container container-" + parameter.toLowerCase(), {
           chart: {
             type: "column",
             zoomType: "y",
             //backgroundColor:"#FBFAE4"
           },
           title: {
-            text: "Perbandingan kadar CO, CO2 dan VOC pada " + waktuPengambilanData + " hari",
+            text: "Perbandingan kadar " + parameter + " pada Pagi dan Sore hari",
           },
           subtitle: {
             text: 'Source: <a href="https://www.statista.com/statistics/611318/population-of-europe-by-country-and-gender/">statista.com</a>',
@@ -164,7 +172,19 @@
             title: {
               text: "ppm",
             },
+            plotLines: [
+              {
+                color: "green",
+                width: 1,
+                value: batasNormal,
+                zIndex: 5,
+                label: {
+                  text: "normal: " + batasNormal,
+                },
+              },
+            ],
           },
+
           tooltip: {
             headerFormat: '<span style="font-size:10px"><b>{point.key}</b></span><table>',
             pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
@@ -180,16 +200,12 @@
           },
           series: [
             {
-              name: "CO",
-              data: dataCO,
+              name: "Pagi",
+              data: dataPagi,
             },
             {
-              name: "CO2",
-              data: dataCO2,
-            },
-            {
-              name: "VOC",
-              data: dataVOC,
+              name: "Sore",
+              data: dataSore,
             },
           ],
         });
@@ -251,11 +267,9 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
     <figure class="highcharts-figure">
-      <div id="container"></div>
-      <p class="highcharts-description">
-        A basic column chart comparing emissions by pollutant. Oil and gas extraction has the overall highest amount of emissions, followed by manufacturing industries and mining. The chart is making use of the axis crosshair feature, to
-        highlight years as they are hovered over.
-      </p>
+      <div id="container container-co"></div>
+      <div id="container container-co2"></div>
+      <div id="container container-voc"></div>
     </figure>
   </body>
 </html>
