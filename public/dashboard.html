@@ -1,275 +1,287 @@
 <!DOCTYPE html>
-<html>
+<html dir="ltr" lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Store data</title>
-
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/9.18.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/9.18.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/9.18.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
-      import { getDatabase, ref, set, push, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-database.js";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
-
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-      const firebaseConfig = {
-        apiKey: "AIzaSyDneaXgP6IJwrGILauQGpMC3VwNDnIXwKE",
-        authDomain: "udara-20779.firebaseapp.com",
-        databaseURL: "https://udara-20779-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "udara-20779",
-        storageBucket: "udara-20779.appspot.com",
-        messagingSenderId: "871100329548",
-        appId: "1:871100329548:web:a51edf09420bd6488bcee9",
-        measurementId: "G-RPNRXJGY3R",
-      };
-
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-
-      const database = getDatabase(app);
-      const queryString = window.location.search;
-      console.log(queryString);
-
-      /* ================== PARAMS ========================== */
-
-      let COPagi = [];
-      let CO2Pagi = [];
-      let VOCPagi = [];
-
-      let COSore = [];
-      let CO2Sore = [];
-      let VOCSore = [];
-
-      let batasNormalCO = 9.0;
-      let batasNormalCO2 = 1000.0;
-      let batasNormalVOC = 3.0;
-
-      let tanggalData = [];
-
-      window.time = new Date();
-      function getDate() {
-        const time = window.time;
-        const day = time.getDate();
-        const d = parseInt(day) < 10 ? "0" + day : day;
-        const month = time.getMonth();
-        const m = parseInt(month) + 1 < 10 ? "0" + (parseInt(month) + 1).toString() : parseInt(month) + 1;
-        const date = d + "-" + m + "-" + time.getFullYear();
-        return date;
-      }
-
-      function setParameter() {
-        const db = getDatabase();
-        const dataHarian = ref(db, "Data/");
-        onValue(dataHarian, (snapshot) => {
-          const data = snapshot.val();
-
-          Object.keys(data).forEach((key) => {
-            tanggalData.push(key);
-            let jam = Object.values(data[key]);
-            let dataPagi = Object.values(jam[0]);
-            let dataSore = Object.values(jam[1]);
-
-            // console.log(obj.name); // John
-
-            COPagi.push(parseFloat(dataPagi[0]));
-            COSore.push(parseFloat(dataSore[0]));
-            CO2Pagi.push(parseFloat(dataPagi[1]));
-            CO2Sore.push(parseFloat(dataSore[1]));
-            VOCPagi.push(parseFloat(dataPagi[2]));
-            VOCSore.push(parseFloat(dataSore[2]));
-          });
-        });
-      }
-
-      setParameter();
-
-      var delayInMilliseconds = 1000; //1 second
-
-      setTimeout(function () {
-        //your code to be executed after 1 second
-        /*
-        console.log("CO pagi  : " + COPagi);
-        console.log("CO2 pagi : " + CO2Pagi);
-        console.log("VOC pagi : " + VOCPagi);
-
-        console.log("CO  sore : " + COSore);
-        console.log("CO2 sore : " + CO2Sore);
-        console.log("VOC sore : " + VOCSore);
-        console.log("Tanggal : " + categories);
-        */
-
-        columnChart("CO", tanggalData, batasNormalCO, COPagi, COSore);
-        columnChart("CO2", tanggalData, batasNormalCO2, CO2Pagi, CO2Sore);
-        columnChart("VOC", tanggalData, batasNormalVOC, VOCPagi, VOCSore);
-      }, delayInMilliseconds);
-
-      /* ========================================= */
-
-      function getTimestamp() {
-        const time = window.time;
-        const hour = time.getHours();
-        const min = time.getMinutes();
-        const sec = time.getSeconds();
-
-        const h = parseInt(hour) < 10 ? "0" + hour : hour;
-        const m = parseInt(min) < 10 ? "0" + min : min;
-        const s = parseInt(sec) < 10 ? "0" + sec : sec;
-
-        const timestamp = h + ":" + m + ":" + s;
-        return timestamp;
-      }
-
-      function columnChart(parameter, categories, batasNormal, dataPagi, dataSore) {
-        Highcharts.setOptions({
-          lang: {
-            thousandsSep: " ",
-          },
-          colors: ["#2a9df4", "#fd9a73"],
-        });
-
-        Highcharts.chart("container container-" + parameter.toLowerCase(), {
-          chart: {
-            type: "column",
-            zoomType: "y",
-            //backgroundColor:"#FBFAE4"
-          },
-          title: {
-            text: "Perbandingan kadar " + parameter + " pada Pagi dan Sore hari",
-          },
-          subtitle: {
-            text: 'Source: <a href="https://www.statista.com/statistics/611318/population-of-europe-by-country-and-gender/">statista.com</a>',
-          },
-          xAxis: {
-            categories: categories,
-            crosshair: true,
-          },
-          yAxis: {
-            min: 0,
-            title: {
-              text: "ppm",
-            },
-            plotLines: [
-              {
-                color: "green",
-                width: 1,
-                value: batasNormal,
-                zIndex: 5,
-                label: {
-                  text: "normal: " + batasNormal,
-                },
-              },
-            ],
-          },
-
-          tooltip: {
-            headerFormat: '<span style="font-size:10px"><b>{point.key}</b></span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
-            footerFormat: "</table>",
-            shared: true,
-            useHTML: true,
-          },
-          plotOptions: {
-            column: {
-              pointPadding: 0.2,
-              borderWidth: 0,
-            },
-          },
-          series: [
-            {
-              name: "Pagi",
-              data: dataPagi,
-            },
-            {
-              name: "Sore",
-              data: dataSore,
-            },
-          ],
-        });
-      }
-    </script>
-    <style>
-      .highcharts-figure,
-      .highcharts-data-table table {
-        min-width: 310px;
-        max-width: 800px;
-        margin: 1em auto;
-      }
-
-      #container {
-        height: 400px;
-      }
-
-      .highcharts-data-table table {
-        font-family: Verdana, sans-serif;
-        border-collapse: collapse;
-        border: 1px solid #ebebeb;
-        margin: 10px auto;
-        text-align: center;
-        width: 100%;
-        max-width: 500px;
-      }
-
-      .highcharts-data-table caption {
-        padding: 1em 0;
-        font-size: 1.2em;
-        color: #555;
-      }
-
-      .highcharts-data-table th {
-        font-weight: 600;
-        padding: 0.5em;
-      }
-
-      .highcharts-data-table td,
-      .highcharts-data-table th,
-      .highcharts-data-table caption {
-        padding: 0.5em;
-      }
-
-      .highcharts-data-table thead tr,
-      .highcharts-data-table tr:nth-child(even) {
-        background: #f8f8f8;
-      }
-
-      .highcharts-data-table tr:hover {
-        background: #f1f7ff;
-      }
-    </style>
+    <meta
+      name="keywords"
+      content="wrappixel, admin dashboard, html css dashboard, web dashboard, bootstrap 5 admin, bootstrap 5, css3 dashboard, bootstrap 5 dashboard, Ample lite admin bootstrap 5 dashboard, frontend, responsive bootstrap 5 admin template, Ample admin lite dashboard bootstrap 5 dashboard template"
+    />
+    <meta name="description" content="Ample Admin Lite is powerful and clean admin dashboard template, inpired from Bootstrap Framework" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Ample Admin Lite Template by WrapPixel</title>
+    <link rel="canonical" href="https://www.wrappixel.com/templates/ample-admin-lite/" />
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="../plugins/images/favicon.png" />
+    <!-- Custom CSS -->
+    <link href="../plugins/bower_components/chartist/dist/chartist.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css" />
+    <!-- Custom CSS -->
+    <link href="../css/style.min.css" rel="stylesheet" />
   </head>
-  <body>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/export-data.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
-    <figure class="highcharts-figure">
-      <div id="container container-co"></div>
-      <div id="container container-co2"></div>
-      <div id="container container-voc"></div>
-    </figure>
+  <body>
+    <!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+    <div class="preloader">
+      <div class="lds-ripple">
+        <div class="lds-pos"></div>
+        <div class="lds-pos"></div>
+      </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full" data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
+      <!-- ============================================================== -->
+      <!-- Topbar header - style you can find in pages.scss -->
+      <!-- ============================================================== -->
+      <header class="topbar" data-navbarbg="skin5">
+        <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+          <div class="navbar-header" data-logobg="skin6">
+            <!-- ============================================================== -->
+            <!-- Logo -->
+            <!-- ============================================================== -->
+            <a class="navbar-brand" href="dashboard.html">
+              <!-- Logo icon -->
+              <b class="logo-icon">
+                <!-- Dark Logo icon -->
+                <img src="../plugins/images/logo-icon.png" alt="homepage" />
+              </b>
+              <!--End Logo icon -->
+              <!-- Logo text -->
+              <span class="logo-text">
+                <!-- dark Logo text -->
+                <img src="../plugins/images/logo-text.png" alt="homepage" />
+              </span>
+            </a>
+            <!-- ============================================================== -->
+            <!-- End Logo -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- toggle and nav items -->
+            <!-- ============================================================== -->
+            <a class="nav-toggler waves-effect waves-light text-dark d-block d-md-none" href="javascript:void(0)"><i class="ti-menu ti-close"></i></a>
+          </div>
+          <!-- ============================================================== -->
+          <!-- End Logo -->
+          <!-- ============================================================== -->
+          <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
+            <!-- ============================================================== -->
+            <!-- Right side toggle and nav items -->
+            <!-- ============================================================== -->
+            <ul class="navbar-nav ms-auto d-flex align-items-center">
+              <!-- ============================================================== -->
+              <!-- Search -->
+              <!-- ============================================================== -->
+              <li class="in">
+                <form role="search" class="app-search d-none d-md-block me-3">
+                  <input type="text" placeholder="Search..." class="form-control mt-0" />
+                  <a href="" class="active">
+                    <i class="fa fa-search"></i>
+                  </a>
+                </form>
+              </li>
+              <!-- ============================================================== -->
+              <!-- User profile and search -->
+              <!-- ============================================================== -->
+              <li>
+                <a class="profile-pic" href="#"> <img src="../plugins/images/users/varun.jpg" alt="user-img" width="36" class="img-circle" /><span class="text-white font-medium">Steave</span></a>
+              </li>
+              <!-- ============================================================== -->
+              <!-- User profile and search -->
+              <!-- ============================================================== -->
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!-- ============================================================== -->
+      <!-- End Topbar header -->
+      <!-- ============================================================== -->
+      <!-- ============================================================== -->
+      <!-- Left Sidebar - style you can find in sidebar.scss  -->
+      <!-- ============================================================== -->
+      <aside class="left-sidebar" data-sidebarbg="skin6">
+        <!-- Sidebar scroll-->
+        <div class="scroll-sidebar">
+          <!-- Sidebar navigation-->
+          <nav class="sidebar-nav">
+            <ul id="sidebarnav">
+              <!-- User Profile-->
+              <li class="sidebar-item pt-2">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="dashboard.html" aria-expanded="false">
+                  <i class="far fa-clock" aria-hidden="true"></i>
+                  <span class="hide-menu">Dashboard</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="profile.html" aria-expanded="false">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  <span class="hide-menu">Profile</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="basic-table.html" aria-expanded="false">
+                  <i class="fa fa-table" aria-hidden="true"></i>
+                  <span class="hide-menu">Basic Table</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="fontawesome.html" aria-expanded="false">
+                  <i class="fa fa-font" aria-hidden="true"></i>
+                  <span class="hide-menu">Icon</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="map-google.html" aria-expanded="false">
+                  <i class="fa fa-globe" aria-hidden="true"></i>
+                  <span class="hide-menu">Google Map</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="blank.html" aria-expanded="false">
+                  <i class="fa fa-columns" aria-hidden="true"></i>
+                  <span class="hide-menu">Blank Page</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="404.html" aria-expanded="false">
+                  <i class="fa fa-info-circle" aria-hidden="true"></i>
+                  <span class="hide-menu">Error 404</span>
+                </a>
+              </li>
+              <li class="text-center p-20 upgrade-btn">
+                <a href="https://www.wrappixel.com/templates/ampleadmin/" class="btn d-grid btn-danger text-white" target="_blank"> Upgrade to Pro</a>
+              </li>
+            </ul>
+          </nav>
+          <!-- End Sidebar navigation -->
+        </div>
+        <!-- End Sidebar scroll-->
+      </aside>
+      <!-- ============================================================== -->
+      <!-- End Left Sidebar - style you can find in sidebar.scss  -->
+      <!-- ============================================================== -->
+      <!-- ============================================================== -->
+      <!-- Page wrapper  -->
+      <!-- ============================================================== -->
+      <div class="page-wrapper">
+        <!-- ============================================================== -->
+        <!-- Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <div class="page-breadcrumb bg-white">
+          <div class="row align-items-center">
+            <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+              <h4 class="page-title">Dashboard</h4>
+            </div>
+            <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+              <div class="d-md-flex">
+                <ol class="breadcrumb ms-auto">
+                  <li><a href="#" class="fw-normal">Dashboard</a></li>
+                </ol>
+                <a href="https://www.wrappixel.com/templates/ampleadmin/" target="_blank" class="btn btn-danger d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Upgrade to Pro</a>
+              </div>
+            </div>
+          </div>
+          <!-- /.col-lg-12 -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Container fluid  -->
+        <!-- ============================================================== -->
+        <div class="container-fluid">
+          <!-- ============================================================== -->
+          <!-- Three charts -->
+          <!-- ============================================================== -->
+          <div class="row justify-content-center">
+            <div class="col-lg-12 col-md-12">
+              <div class="white-box analytics-info">
+                <h3 class="box-title">Total Visit</h3>
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li>
+                    <div id="sparklinedash"><canvas width="67" height="30" style="display: inline-block; width: 67px; height: 30px; vertical-align: top"></canvas></div>
+                  </li>
+                  <li class="ms-auto"><span class="counter text-success">659</span></li>
+                </ul>
+              </div>
+            </div>
+            <!-- <div class="col-lg-4 col-md-12">
+              <div class="white-box analytics-info">
+                <h3 class="box-title">Total Page Views</h3>
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li>
+                    <div id="sparklinedash2"><canvas width="67" height="30" style="display: inline-block; width: 67px; height: 30px; vertical-align: top"></canvas></div>
+                  </li>
+                  <li class="ms-auto"><span class="counter text-purple">869</span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+              <div class="white-box analytics-info">
+                <h3 class="box-title">Unique Visitor</h3>
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li>
+                    <div id="sparklinedash3"><canvas width="67" height="30" style="display: inline-block; width: 67px; height: 30px; vertical-align: top"></canvas></div>
+                  </li>
+                  <li class="ms-auto"><span class="counter text-info">911</span></li>
+                </ul>
+              </div>
+            </div> -->
+          </div>
+
+          <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-12">
+              <div class="white-box analytics-info"></div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+              <div class="white-box analytics-info"></div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+              <div class="white-box analytics-info"></div>
+            </div>
+          </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Container fluid  -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- footer -->
+        <!-- ============================================================== -->
+        <footer class="footer text-center">2021 © Ample Admin brought to you by <a href="https://www.wrappixel.com/">wrappixel.com</a></footer>
+        <!-- ============================================================== -->
+        <!-- End footer -->
+        <!-- ============================================================== -->
+      </div>
+      <!-- ============================================================== -->
+      <!-- End Page wrapper  -->
+      <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+    <script src="../plugins/bower_components/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="../bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/app-style-switcher.js"></script>
+    <script src="../plugins/bower_components/jquery-sparkline/jquery.sparkline.min.js"></script>
+    <!--Wave Effects -->
+    <script src="../js/waves.js"></script>
+    <!--Menu sidebar -->
+    <script src="../js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="../js/custom.js"></script>
+    <!--This page JavaScript -->
+    <!--chartis chart-->
+    <script src="../plugins/bower_components/chartist/dist/chartist.min.js"></script>
+    <script src="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
+    <script src="../js/pages/dashboards/dashboard1.js"></script>
   </body>
 </html>
