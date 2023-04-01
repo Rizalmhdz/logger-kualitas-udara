@@ -23,6 +23,8 @@
     -->
     <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
     <script type="module">
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
@@ -52,7 +54,17 @@
       const queryString = window.location.search;
       console.log(queryString);
 
-      /* ================== GET PARAMS ========================== */
+      /* ================== PARAMS ========================== */
+
+      let COPagi = [];
+      let CO2Pagi = [];
+      let VOCPagi = [];
+
+      let COSore = [];
+      let CO2Sore = [];
+      let VOCSore = [];
+
+      let categories = [];
 
       window.time = new Date();
       function getDate() {
@@ -65,12 +77,47 @@
         return date;
       }
 
-      const db = getDatabase();
-      const dataHarian = ref(db, "Data/" + getDate());
-      onValue(dataHarian, (snapshot) => {
-        const data = snapshot.val();
-        console.log("Data harian " + getDate() + " : " + data);
-      });
+      function setParameter() {
+        const db = getDatabase();
+        const dataHarian = ref(db, "Data/");
+        onValue(dataHarian, (snapshot) => {
+          const data = snapshot.val();
+
+          Object.keys(data).forEach((key) => {
+            categories.push(key);
+            let jam = Object.values(data[key]);
+            let dataPagi = Object.values(jam[0]);
+            let dataSore = Object.values(jam[1]);
+
+            // console.log(obj.name); // John
+
+            COPagi.push(parseFloat(dataPagi[0]));
+            COSore.push(parseFloat(dataSore[0]));
+            CO2Pagi.push(parseFloat(dataPagi[1]));
+            CO2Sore.push(parseFloat(dataSore[1]));
+            VOCPagi.push(parseFloat(dataPagi[2]));
+            VOCSore.push(parseFloat(dataSore[2]));
+          });
+        });
+      }
+
+      setParameter();
+
+      var delayInMilliseconds = 1000; //1 second
+
+      setTimeout(function () {
+        //your code to be executed after 1 second
+        console.log("CO pagi  : " + COPagi);
+        console.log("CO2 pagi : " + CO2Pagi);
+        console.log("VOC pagi : " + VOCPagi);
+
+        console.log("CO  sore : " + COSore);
+        console.log("CO2 sore : " + CO2Sore);
+        console.log("VOC sore : " + VOCSore);
+        console.log("Tanggal : " + categories);
+
+        columnChart("Pagi", categories, COPagi, CO2Pagi, VOCPagi);
+      }, delayInMilliseconds);
 
       /* ========================================= */
 
@@ -87,7 +134,128 @@
         const timestamp = h + ":" + m + ":" + s;
         return timestamp;
       }
+
+      function columnChart(waktuPengambilanData, categories, dataCO, dataCO2, dataVOC) {
+        Highcharts.setOptions({
+          lang: {
+            thousandsSep: " ",
+          },
+          colors: ["#e987cf", "#67E863", "#FFD700"],
+        });
+
+        Highcharts.chart("container", {
+          chart: {
+            type: "column",
+            zoomType: "y",
+            //backgroundColor:"#FBFAE4"
+          },
+          title: {
+            text: "Perbandingan kadar CO, CO2 dan VOC pada " + waktuPengambilanData + " hari",
+          },
+          subtitle: {
+            text: 'Source: <a href="https://www.statista.com/statistics/611318/population-of-europe-by-country-and-gender/">statista.com</a>',
+          },
+          xAxis: {
+            categories: categories,
+            crosshair: true,
+          },
+          yAxis: {
+            min: 0,
+            title: {
+              text: "ppm",
+            },
+          },
+          tooltip: {
+            headerFormat: '<span style="font-size:10px"><b>{point.key}</b></span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
+            footerFormat: "</table>",
+            shared: true,
+            useHTML: true,
+          },
+          plotOptions: {
+            column: {
+              pointPadding: 0.2,
+              borderWidth: 0,
+            },
+          },
+          series: [
+            {
+              name: "CO",
+              data: dataCO,
+            },
+            {
+              name: "CO2",
+              data: dataCO2,
+            },
+            {
+              name: "VOC",
+              data: dataVOC,
+            },
+          ],
+        });
+      }
     </script>
+    <style>
+      .highcharts-figure,
+      .highcharts-data-table table {
+        min-width: 310px;
+        max-width: 800px;
+        margin: 1em auto;
+      }
+
+      #container {
+        height: 400px;
+      }
+
+      .highcharts-data-table table {
+        font-family: Verdana, sans-serif;
+        border-collapse: collapse;
+        border: 1px solid #ebebeb;
+        margin: 10px auto;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .highcharts-data-table caption {
+        padding: 1em 0;
+        font-size: 1.2em;
+        color: #555;
+      }
+
+      .highcharts-data-table th {
+        font-weight: 600;
+        padding: 0.5em;
+      }
+
+      .highcharts-data-table td,
+      .highcharts-data-table th,
+      .highcharts-data-table caption {
+        padding: 0.5em;
+      }
+
+      .highcharts-data-table thead tr,
+      .highcharts-data-table tr:nth-child(even) {
+        background: #f8f8f8;
+      }
+
+      .highcharts-data-table tr:hover {
+        background: #f1f7ff;
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <figure class="highcharts-figure">
+      <div id="container"></div>
+      <p class="highcharts-description">
+        A basic column chart comparing emissions by pollutant. Oil and gas extraction has the overall highest amount of emissions, followed by manufacturing industries and mining. The chart is making use of the axis crosshair feature, to
+        highlight years as they are hovered over.
+      </p>
+    </figure>
+  </body>
 </html>
