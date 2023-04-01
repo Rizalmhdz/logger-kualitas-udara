@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css" />
     <!-- Custom CSS -->
     <link href="../css/style.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
     <!-- ============================== SETUP FIREBASE DAN SCRIPT =================== -->
     <!-- update the version number as needed -->
@@ -47,192 +48,6 @@
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
-      import { getDatabase, ref, set, push, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-database.js";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
-
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-      const firebaseConfig = {
-        apiKey: "AIzaSyDneaXgP6IJwrGILauQGpMC3VwNDnIXwKE",
-        authDomain: "udara-20779.firebaseapp.com",
-        databaseURL: "https://udara-20779-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "udara-20779",
-        storageBucket: "udara-20779.appspot.com",
-        messagingSenderId: "871100329548",
-        appId: "1:871100329548:web:a51edf09420bd6488bcee9",
-        measurementId: "G-RPNRXJGY3R",
-      };
-
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-
-      const database = getDatabase(app);
-      const queryString = window.location.search;
-      console.log(queryString);
-
-      /* ================== PARAMS ========================== */
-
-      let COPagi = [];
-      let CO2Pagi = [];
-      let VOCPagi = [];
-
-      let COSore = [];
-      let CO2Sore = [];
-      let VOCSore = [];
-
-      let batasNormalCO = 9.0;
-      let batasNormalCO2 = 1000.0;
-      let batasNormalVOC = 3.0;
-
-      let tanggalData = [];
-
-      window.time = new Date();
-      function getDate() {
-        const time = window.time;
-        const day = time.getDate();
-        const d = parseInt(day) < 10 ? "0" + day : day;
-        const month = time.getMonth();
-        const m = parseInt(month) + 1 < 10 ? "0" + (parseInt(month) + 1).toString() : parseInt(month) + 1;
-        const date = d + "-" + m + "-" + time.getFullYear();
-        return date;
-      }
-
-      function setParameter() {
-        const db = getDatabase();
-        const dataHarian = ref(db, "Data/");
-        onValue(dataHarian, (snapshot) => {
-          const data = snapshot.val();
-
-          Object.keys(data).forEach((key) => {
-            tanggalData.push(key);
-            let jam = Object.values(data[key]);
-            let dataPagi = Object.values(jam[0]);
-            let dataSore = Object.values(jam[1]);
-
-            // console.log(obj.name); // John
-
-            COPagi.push(parseFloat(dataPagi[0]));
-            COSore.push(parseFloat(dataSore[0]));
-            CO2Pagi.push(parseFloat(dataPagi[1]));
-            CO2Sore.push(parseFloat(dataSore[1]));
-            VOCPagi.push(parseFloat(dataPagi[2]));
-            VOCSore.push(parseFloat(dataSore[2]));
-          });
-        });
-      }
-
-      setParameter();
-
-      var delayInMilliseconds = 1000; //1 second
-
-      setTimeout(function () {
-        //your code to be executed after 1 second
-        /*
-         console.log("CO pagi  : " + COPagi);
-         console.log("CO2 pagi : " + CO2Pagi);
-         console.log("VOC pagi : " + VOCPagi);
- 
-         console.log("CO  sore : " + COSore);
-         console.log("CO2 sore : " + CO2Sore);
-         console.log("VOC sore : " + VOCSore);
-         console.log("Tanggal : " + categories);
-         */
-
-        columnChart("CO", tanggalData, batasNormalCO, COPagi, COSore);
-        columnChart("CO2", tanggalData, batasNormalCO2, CO2Pagi, CO2Sore);
-        columnChart("VOC", tanggalData, batasNormalVOC, VOCPagi, VOCSore);
-      }, delayInMilliseconds);
-
-      /* ========================================= */
-
-      function getTimestamp() {
-        const time = window.time;
-        const hour = time.getHours();
-        const min = time.getMinutes();
-        const sec = time.getSeconds();
-
-        const h = parseInt(hour) < 10 ? "0" + hour : hour;
-        const m = parseInt(min) < 10 ? "0" + min : min;
-        const s = parseInt(sec) < 10 ? "0" + sec : sec;
-
-        const timestamp = h + ":" + m + ":" + s;
-        return timestamp;
-      }
-
-      function columnChart(parameter, categories, batasNormal, dataPagi, dataSore) {
-        Highcharts.setOptions({
-          lang: {
-            thousandsSep: " ",
-          },
-          colors: ["#2a9df4", "#fd9a73"],
-        });
-
-        Highcharts.chart("container container-" + parameter.toLowerCase(), {
-          chart: {
-            type: "column",
-            zoomType: "y",
-            //backgroundColor:"#FBFAE4"
-          },
-          title: {
-            text: "Perbandingan kadar " + parameter + " pada Pagi dan Sore hari",
-          },
-          subtitle: {
-            text: 'Source: <a href="https://www.statista.com/statistics/611318/population-of-europe-by-country-and-gender/">statista.com</a>',
-          },
-          xAxis: {
-            categories: categories,
-            crosshair: true,
-          },
-          yAxis: {
-            min: 0,
-            title: {
-              text: "ppm",
-            },
-            plotLines: [
-              {
-                color: "green",
-                width: 1,
-                value: batasNormal,
-                zIndex: 5,
-                label: {
-                  text: "normal: " + batasNormal,
-                },
-              },
-            ],
-          },
-
-          tooltip: {
-            headerFormat: '<span style="font-size:10px"><b>{point.key}</b></span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
-            footerFormat: "</table>",
-            shared: true,
-            useHTML: true,
-          },
-          plotOptions: {
-            column: {
-              pointPadding: 0.2,
-              borderWidth: 0,
-            },
-          },
-          series: [
-            {
-              name: "Pagi",
-              data: dataPagi,
-            },
-            {
-              name: "Sore",
-              data: dataSore,
-            },
-          ],
-        });
-      }
-    </script>
     <style>
       .highcharts-figure,
       .highcharts-data-table table {
@@ -334,28 +149,6 @@
             <!-- ============================================================== -->
             <!-- Right side toggle and nav items -->
             <!-- ============================================================== -->
-            <ul class="navbar-nav ms-auto d-flex align-items-center">
-              <!-- ============================================================== -->
-              <!-- Search -->
-              <!-- ============================================================== -->
-              <li class="in">
-                <form role="search" class="app-search d-none d-md-block me-3">
-                  <input type="text" placeholder="Search..." class="form-control mt-0" />
-                  <a href="" class="active">
-                    <i class="fa fa-search"></i>
-                  </a>
-                </form>
-              </li>
-              <!-- ============================================================== -->
-              <!-- User profile and search -->
-              <!-- ============================================================== -->
-              <li>
-                <a class="profile-pic" href="#"> <img src="../plugins/images/users/varun.jpg" alt="user-img" width="36" class="img-circle" /><span class="text-white font-medium">Steave</span></a>
-              </li>
-              <!-- ============================================================== -->
-              <!-- User profile and search -->
-              <!-- ============================================================== -->
-            </ul>
           </div>
         </nav>
       </header>
@@ -438,14 +231,6 @@
             <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
               <h4 class="page-title">Dashboard</h4>
             </div>
-            <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
-              <div class="d-md-flex">
-                <ol class="breadcrumb ms-auto">
-                  <li><a href="#" class="fw-normal">Dashboard</a></li>
-                </ol>
-                <a href="https://www.wrappixel.com/templates/ampleadmin/" target="_blank" class="btn btn-danger d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Upgrade to Pro</a>
-              </div>
-            </div>
           </div>
           <!-- /.col-lg-12 -->
         </div>
@@ -460,39 +245,56 @@
           <!-- Three charts -->
           <!-- ============================================================== -->
           <div class="row justify-content-center">
-            <div class="col-lg-12 col-md-12">
+            <div class="col-lg-5 col-md-12">
               <div class="white-box analytics-info">
-                <h3 class="box-title">Total Visit</h3>
+                <h3 class="box-title">Latest Update at</h3>
+
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li class="ms-4">
+                    <i class="fa-regular fa-clock-rotate-left"></i>
+                    <h1 id="info-update" class="fw-bold text-dark"></h1>
+                  </li>
+                  <li class="ms-auto"><span class="counter text-dark"></span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-lg-2 col-md-12">
+              <div class="white-box analytics-info">
+                <h3 class="box-title">Kadar CO</h3>
                 <ul class="list-inline two-part d-flex align-items-center mb-0">
                   <li>
                     <div id="sparklinedash"><canvas width="67" height="30" style="display: inline-block; width: 67px; height: 30px; vertical-align: top"></canvas></div>
                   </li>
-                  <li class="ms-auto"><span class="counter text-success">659</span></li>
+                  <li class="ms-auto"><h1 id="info-co" class="fw-bold text-dark">0</h1></li>
+                  <li class="ms-auto"><span class="counter text-dark">ppm</span></li>
                 </ul>
               </div>
             </div>
-            <!-- <div class="col-lg-4 col-md-12">
+            <div class="col-lg-3 col-md-12">
               <div class="white-box analytics-info">
-                <h3 class="box-title">Total Page Views</h3>
+                <h3 class="box-title">Kadar CO2</h3>
                 <ul class="list-inline two-part d-flex align-items-center mb-0">
                   <li>
                     <div id="sparklinedash2"><canvas width="67" height="30" style="display: inline-block; width: 67px; height: 30px; vertical-align: top"></canvas></div>
                   </li>
-                  <li class="ms-auto"><span class="counter text-purple">869</span></li>
+                  <li class="ms-auto"><h1 id="info-co2" class="fw-bold text-dark">0</h1></li>
+                  <li class="ms-auto"><span class="counter text-dark">ppm</span></li>
                 </ul>
               </div>
             </div>
-            <div class="col-lg-4 col-md-12">
+            <div class="col-lg-2 col-md-12">
               <div class="white-box analytics-info">
-                <h3 class="box-title">Unique Visitor</h3>
+                <h3 class="box-title">Kadar VOC</h3>
                 <ul class="list-inline two-part d-flex align-items-center mb-0">
                   <li>
                     <div id="sparklinedash3"><canvas width="67" height="30" style="display: inline-block; width: 67px; height: 30px; vertical-align: top"></canvas></div>
                   </li>
-                  <li class="ms-auto"><span class="counter text-info">911</span></li>
+                  <li class="ms-auto"><h1 id="info-voc" class="fw-bold text-dark">0</h1></li>
+                  <li class="ms-auto"><span class="counter text-dark">ppm</span></li>
                 </ul>
               </div>
-            </div> -->
+            </div>
           </div>
 
           <div class="row justify-content-center">
@@ -550,5 +352,219 @@
     <script src="../plugins/bower_components/chartist/dist/chartist.min.js"></script>
     <script src="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
     <script src="../js/pages/dashboards/dashboard1.js"></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
+      import { getDatabase, ref, set, push, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-database.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyDneaXgP6IJwrGILauQGpMC3VwNDnIXwKE",
+        authDomain: "udara-20779.firebaseapp.com",
+        databaseURL: "https://udara-20779-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "udara-20779",
+        storageBucket: "udara-20779.appspot.com",
+        messagingSenderId: "871100329548",
+        appId: "1:871100329548:web:a51edf09420bd6488bcee9",
+        measurementId: "G-RPNRXJGY3R",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+
+      const database = getDatabase(app);
+      const queryString = window.location.search;
+      console.log(queryString);
+
+      /* ================== PARAMS ========================== */
+
+      let COPagi = [];
+      let CO2Pagi = [];
+      let VOCPagi = [];
+
+      let COSore = [];
+      let CO2Sore = [];
+      let VOCSore = [];
+
+      let batasNormalCO = 9.0;
+      let batasNormalCO2 = 1000.0;
+      let batasNormalVOC = 3.0;
+
+      let tanggalData = [];
+
+      window.time = new Date();
+      function getDate() {
+        const time = window.time;
+        const day = time.getDate();
+        const d = parseInt(day) < 10 ? "0" + day : day;
+        const month = time.getMonth();
+        const m = parseInt(month) + 1 < 10 ? "0" + (parseInt(month) + 1).toString() : parseInt(month) + 1;
+        const date = d + "-" + m + "-" + time.getFullYear();
+        return date;
+      }
+
+      function setParameter() {
+        const db = getDatabase();
+        const dataHarian = ref(db, "Data/");
+        onValue(dataHarian, (snapshot) => {
+          let data = snapshot.val();
+
+          Object.keys(data).forEach((key) => {
+            tanggalData.push(key);
+            let jam = Object.values(data[key]);
+            let dataPagi = Object.values(jam[0]);
+            let dataSore = Object.values(jam[1]);
+
+            // console.log(obj.name); // John
+
+            COPagi.push(parseFloat(dataPagi[0]));
+            COSore.push(parseFloat(dataSore[0]));
+            CO2Pagi.push(parseFloat(dataPagi[1]));
+            CO2Sore.push(parseFloat(dataSore[1]));
+            VOCPagi.push(parseFloat(dataPagi[2]));
+            VOCSore.push(parseFloat(dataSore[2]));
+          });
+        });
+      }
+
+      setParameter();
+
+      var delayInMilliseconds = 1000; //1 second
+
+      setTimeout(function () {
+        //your code to be executed after 1 second
+        /*
+           console.log("CO pagi  : " + COPagi);
+           console.log("CO2 pagi : " + CO2Pagi);
+           console.log("VOC pagi : " + VOCPagi);
+   
+           console.log("CO  sore : " + COSore);
+           console.log("CO2 sore : " + CO2Sore);
+           console.log("VOC sore : " + VOCSore);
+           console.log("Tanggal : " + categories);
+           */
+
+        columnChart("CO", tanggalData, batasNormalCO, COPagi, COSore);
+        columnChart("CO2", tanggalData, batasNormalCO2, CO2Pagi, CO2Sore);
+        columnChart("VOC", tanggalData, batasNormalVOC, VOCPagi, VOCSore);
+      }, delayInMilliseconds);
+
+      /* ========================================= */
+
+      // // Elements for sensor readings
+
+      function dataRealtime() {
+        const db = getDatabase();
+        const dataRealtime = ref(db, "LatestData/");
+        onValue(dataRealtime, (snapshot) => {
+          const data = snapshot.val();
+          const co = document.getElementById("info-co");
+          const co2 = document.getElementById("info-co2");
+          const voc = document.getElementById("info-voc");
+          const update = document.getElementById("info-update");
+
+          co.innerText = snapshot.val().CO;
+          co2.innerText = snapshot.val().CO2;
+          voc.innerText = snapshot.val().VOC;
+          voc.innerText = snapshot.val().VOC;
+          update.innerText = snapshot.val().timestamp;
+        });
+      }
+
+      dataRealtime();
+      // const kualitasElement = document.getElementById("kualitas_air");
+
+      //UNTUK MENAMPILKAN DATA KE TAMPILAN
+
+      /* ========================================= */
+
+      function getTimestamp() {
+        const time = window.time;
+        const hour = time.getHours();
+        const min = time.getMinutes();
+        const sec = time.getSeconds();
+
+        const h = parseInt(hour) < 10 ? "0" + hour : hour;
+        const m = parseInt(min) < 10 ? "0" + min : min;
+        const s = parseInt(sec) < 10 ? "0" + sec : sec;
+
+        const timestamp = h + ":" + m + ":" + s;
+        return timestamp;
+      }
+
+      function columnChart(parameter, categories, batasNormal, dataPagi, dataSore) {
+        Highcharts.setOptions({
+          lang: {
+            thousandsSep: " ",
+          },
+          colors: ["#2a9df4", "#fd9a73"],
+        });
+
+        Highcharts.chart("container container-" + parameter.toLowerCase(), {
+          chart: {
+            type: "column",
+            zoomType: "y",
+            //backgroundColor:"#FBFAE4"
+          },
+          title: {
+            text: "Perbandingan kadar " + parameter + " pada Pagi dan Sore hari",
+          },
+          subtitle: {
+            text: 'Source: <a href="https://www.statista.com/statistics/611318/population-of-europe-by-country-and-gender/">statista.com</a>',
+          },
+          xAxis: {
+            categories: categories,
+            crosshair: true,
+          },
+          yAxis: {
+            min: 0,
+            title: {
+              text: "ppm",
+            },
+            plotLines: [
+              {
+                color: "green",
+                width: 1,
+                value: batasNormal,
+                zIndex: 5,
+                label: {
+                  text: "normal: " + batasNormal,
+                },
+              },
+            ],
+          },
+
+          tooltip: {
+            headerFormat: '<span style="font-size:10px"><b>{point.key}</b></span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
+            footerFormat: "</table>",
+            shared: true,
+            useHTML: true,
+          },
+          plotOptions: {
+            column: {
+              pointPadding: 0.2,
+              borderWidth: 0,
+            },
+          },
+          series: [
+            {
+              name: "Pagi",
+              data: dataPagi,
+            },
+            {
+              name: "Sore",
+              data: dataSore,
+            },
+          ],
+        });
+      }
+    </script>
   </body>
 </html>
