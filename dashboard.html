@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Store data</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.18.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.18.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/9.18.0/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
+      import { getDatabase, ref, set, push, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-database.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyDneaXgP6IJwrGILauQGpMC3VwNDnIXwKE",
+        authDomain: "udara-20779.firebaseapp.com",
+        databaseURL: "https://udara-20779-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "udara-20779",
+        storageBucket: "udara-20779.appspot.com",
+        messagingSenderId: "871100329548",
+        appId: "1:871100329548:web:a51edf09420bd6488bcee9",
+        measurementId: "G-RPNRXJGY3R",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+
+      const database = getDatabase(app);
+      const queryString = window.location.search;
+      console.log(queryString);
+
+      /* ================== GET PARAMS ========================== */
+
+      window.time = new Date();
+      function getDate() {
+        const time = window.time;
+        const day = time.getDate();
+        const d = parseInt(day) < 10 ? "0" + day : day;
+        const month = time.getMonth();
+        const m = parseInt(month) + 1 < 10 ? "0" + (parseInt(month) + 1).toString() : parseInt(month) + 1;
+        const date = d + "-" + m + "-" + time.getFullYear();
+        return date;
+      }
+
+      const db = getDatabase();
+      const dataHarian = ref(db, "Data/" + getDate());
+      onValue(dataHarian, (snapshot) => {
+        const data = snapshot.val();
+        console.log("Data harian " + getDate() + " : " + data);
+      });
+
+      /* ========================================= */
+
+      function getTimestamp() {
+        const time = window.time;
+        const hour = time.getHours();
+        const min = time.getMinutes();
+        const sec = time.getSeconds();
+
+        const h = parseInt(hour) < 10 ? "0" + hour : hour;
+        const m = parseInt(min) < 10 ? "0" + min : min;
+        const s = parseInt(sec) < 10 ? "0" + sec : sec;
+
+        const timestamp = h + ":" + m + ":" + s;
+        return timestamp;
+      }
+    </script>
+  </head>
+  <body></body>
+</html>
