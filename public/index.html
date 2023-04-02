@@ -249,12 +249,19 @@
               <div class="white-box analytics-info">
                 <h3 class="box-title">Latest Update at</h3>
 
-                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                <ul class="list-inline two-part d-flex align-items-center mb-0 pb-4">
                   <li class="ms-4">
                     <i class="fa-regular fa-clock-rotate-left"></i>
                     <h1 id="info-update" class="fw-bold text-dark">-</h1>
                   </li>
                   <li class="ms-auto"><span class="counter text-dark"></span></li>
+                </ul>
+
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li class="ms-1"><span class="counter text-dark"></span></li>
+                  <li class="ms-auto">
+                    <div id="indikator" class="p-1 mb-1 text-white"></div>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -373,7 +380,7 @@
     <script src="plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
     <script src="js/pages/dashboards/dashboard1.js"></script>
 
-    <script type="module">
+    <script type="module" defer>
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
@@ -449,31 +456,20 @@
             CO2Sore.push(parseFloat(dataSore[1]));
             VOCPagi.push(parseFloat(dataPagi[2]));
             VOCSore.push(parseFloat(dataSore[2]));
+
+            dataRealtime();
+            dataLog();
           });
         });
       }
 
       setParameter();
 
-      var delayInMilliseconds = 1000; //1 second
-
-      setTimeout(function () {
-        //your code to be executed after 1 second
-        /*
-           console.log("CO pagi  : " + COPagi);
-           console.log("CO2 pagi : " + CO2Pagi);
-           console.log("VOC pagi : " + VOCPagi);
-   
-           console.log("CO  sore : " + COSore);
-           console.log("CO2 sore : " + CO2Sore);
-           console.log("VOC sore : " + VOCSore);
-           console.log("Tanggal : " + categories);
-           */
-
+      function dataLog() {
         columnChart("CO", tanggalData, batasNormalCO, COPagi, COSore);
         columnChart("CO2", tanggalData, batasNormalCO2, CO2Pagi, CO2Sore);
         columnChart("VOC", tanggalData, batasNormalVOC, VOCPagi, VOCSore);
-      }, delayInMilliseconds);
+      }
 
       /* ========================================= */
 
@@ -487,17 +483,47 @@
           const co = document.getElementById("info-co");
           const co2 = document.getElementById("info-co2");
           const voc = document.getElementById("info-voc");
+          const indikator_co = document.getElementById("indikator-co");
+          const indikator_co2 = document.getElementById("indikator-co2");
+          const indikator_voc = document.getElementById("indikator-voc");
           const update = document.getElementById("info-update");
 
           co.innerText = snapshot.val().CO;
           co2.innerText = snapshot.val().CO2;
           voc.innerText = snapshot.val().VOC;
-          voc.innerText = snapshot.val().VOC;
           update.innerText = snapshot.val().timestamp;
+
+          if (parseFloat(snapshot.val().CO) > batasNormalCO) {
+            indikator_co.innerText = "Diatas Normal";
+            indikator_co.classList.remove("bg-success");
+            indikator_co.classList.add("bg-danger");
+          } else {
+            indikator_co.innerText = "Normal";
+            indikator_co.classList.add("bg-success");
+            indikator_co.classList.remove("bg-danger");
+          }
+          if (parseFloat(snapshot.val().CO2) > batasNormalCO2) {
+            indikator_co2.innerText = "Diatas Normal";
+            indikator_co2.classList.remove("bg-success");
+            indikator_co2.classList.add("bg-danger");
+          } else {
+            indikator_co2.innerText = "Normal";
+            indikator_co2.classList.add("bg-success");
+            indikator_co2.classList.remove("bg-danger");
+          }
+          if (parseFloat(snapshot.val().VOC) > batasNormalVOC) {
+            indikator_voc.innerText = "Diatas Normal";
+            indikator_voc.classList.remove("bg-success");
+            indikator_voc.classList.add("bg-danger");
+          } else {
+            indikator_voc.innerText = "Normal";
+            indikator_voc.classList.add("bg-success");
+            indikator_voc.classList.remove("bg-danger");
+          }
         });
       }
 
-      dataRealtime();
+      // dataRealtime();
       // const kualitasElement = document.getElementById("kualitas_air");
 
       //UNTUK MENAMPILKAN DATA KE TAMPILAN
