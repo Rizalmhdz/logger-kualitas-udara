@@ -14,12 +14,12 @@
     <title>Ample Admin Lite Template by WrapPixel</title>
     <link rel="canonical" href="https://www.wrappixel.com/templates/ample-admin-lite/" />
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="../plugins/images/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="plugins/images/favicon.png" />
     <!-- Custom CSS -->
-    <link href="../plugins/bower_components/chartist/dist/chartist.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css" />
+    <link href="plugins/bower_components/chartist/dist/chartist.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css" />
     <!-- Custom CSS -->
-    <link href="../css/style.min.css" rel="stylesheet" />
+    <link href="css/style.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
     <!-- ============================== SETUP FIREBASE DAN SCRIPT =================== -->
@@ -121,17 +121,17 @@
             <!-- ============================================================== -->
             <!-- Logo -->
             <!-- ============================================================== -->
-            <a class="navbar-brand" href="dashboard.html">
+            <a class="navbar-brand" href="index.html">
               <!-- Logo icon -->
               <b class="logo-icon">
                 <!-- Dark Logo icon -->
-                <img src="../plugins/images/logo-icon.png" alt="homepage" />
+                <img src="plugins/images/logo-icon.png" alt="homepage" />
               </b>
               <!--End Logo icon -->
               <!-- Logo text -->
               <span class="logo-text">
                 <!-- dark Logo text -->
-                <img src="../plugins/images/logo-text.png" alt="homepage" />
+                <img src="plugins/images/logo-text.png" alt="homepage" />
               </span>
             </a>
             <!-- ============================================================== -->
@@ -166,7 +166,7 @@
             <ul id="sidebarnav">
               <!-- User Profile-->
               <li class="sidebar-item pt-2">
-                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="dashboard.html" aria-expanded="false">
+                <a class="sidebar-link waves-effect waves-dark sidebar-link" href="index.html" aria-expanded="false">
                   <i class="far fa-clock" aria-hidden="true"></i>
                   <span class="hide-menu">Dashboard</span>
                 </a>
@@ -252,7 +252,7 @@
                 <ul class="list-inline two-part d-flex align-items-center mb-0">
                   <li class="ms-4">
                     <i class="fa-regular fa-clock-rotate-left"></i>
-                    <h1 id="info-update" class="fw-bold text-dark"></h1>
+                    <h1 id="info-update" class="fw-bold text-dark">-</h1>
                   </li>
                   <li class="ms-auto"><span class="counter text-dark"></span></li>
                 </ul>
@@ -269,6 +269,12 @@
                   <li class="ms-auto"><h1 id="info-co" class="fw-bold text-dark">0</h1></li>
                   <li class="ms-auto"><span class="counter text-dark">ppm</span></li>
                 </ul>
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li class="ms-1"><span class="counter text-dark">status</span></li>
+                  <li class="ms-auto">
+                    <div id="indikator-co" class="p-1 mb-1 bg-success text-white">indikator</div>
+                  </li>
+                </ul>
               </div>
             </div>
             <div class="col-lg-3 col-md-12">
@@ -281,6 +287,13 @@
                   <li class="ms-auto"><h1 id="info-co2" class="fw-bold text-dark">0</h1></li>
                   <li class="ms-auto"><span class="counter text-dark">ppm</span></li>
                 </ul>
+
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li class="ms-1"><span class="counter text-dark">status</span></li>
+                  <li class="ms-auto">
+                    <div id="indikator-co2" class="p-1 mb-1 bg-success text-white">indikator</div>
+                  </li>
+                </ul>
               </div>
             </div>
             <div class="col-lg-2 col-md-12">
@@ -292,6 +305,13 @@
                   </li>
                   <li class="ms-auto"><h1 id="info-voc" class="fw-bold text-dark">0</h1></li>
                   <li class="ms-auto"><span class="counter text-dark">ppm</span></li>
+                </ul>
+
+                <ul class="list-inline two-part d-flex align-items-center mb-0">
+                  <li class="ms-1"><span class="counter text-dark">status</span></li>
+                  <li class="ms-auto">
+                    <div id="indikator-voc" class="p-1 mb-1 bg-success text-white">indikator</div>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -336,22 +356,22 @@
     <!-- ============================================================== -->
     <!-- All Jquery -->
     <!-- ============================================================== -->
-    <script src="../plugins/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="plugins/bower_components/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap tether Core JavaScript -->
-    <script src="../bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/app-style-switcher.js"></script>
-    <script src="../plugins/bower_components/jquery-sparkline/jquery.sparkline.min.js"></script>
+    <script src="bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app-style-switcher.js"></script>
+    <script src="plugins/bower_components/jquery-sparkline/jquery.sparkline.min.js"></script>
     <!--Wave Effects -->
-    <script src="../js/waves.js"></script>
+    <script src="js/waves.js"></script>
     <!--Menu sidebar -->
-    <script src="../js/sidebarmenu.js"></script>
+    <script src="js/sidebarmenu.js"></script>
     <!--Custom JavaScript -->
-    <script src="../js/custom.js"></script>
+    <script src="js/custom.js"></script>
     <!--This page JavaScript -->
     <!--chartis chart-->
-    <script src="../plugins/bower_components/chartist/dist/chartist.min.js"></script>
-    <script src="../plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
-    <script src="../js/pages/dashboards/dashboard1.js"></script>
+    <script src="plugins/bower_components/chartist/dist/chartist.min.js"></script>
+    <script src="plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
+    <script src="js/pages/dashboards/dashboard1.js"></script>
 
     <script type="module">
       // Import the functions you need from the SDKs you need
